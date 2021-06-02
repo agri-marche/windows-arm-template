@@ -1,6 +1,10 @@
-name: AzureLoginSample
+name: UpdateAzureTemplateSpecs
 on: 
   workflow_dispatch:
+
+env:
+  TEMPLATE_NAME: WindowsServerDatacenter2019
+  RESOURCE_GROUP: rg-arm-test
 
 jobs:
 
@@ -13,4 +17,4 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - run: |
-        az vm list
+        az ts create --name $TEMPLATE_NAME --version "v0.0.1" --resource-group $RESOURCE_GROUP --location "canadacentral" --template-file "azuredeploy.json"
