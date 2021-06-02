@@ -1,0 +1,204 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "existingVNETName": {
+            "type": "string",
+            "metadata": {
+                "description": "Existing VNET that contains the domain controller"
+            },
+            "defaultValue": "vnet-prod-spoke-workload"
+        },
+        "existingSubnetName": {
+            "type": "string",
+            "metadata": {
+                "description": "Existing subnet that contains the domain controller"
+            },
+            "defaultValue": "snet-prod-spoke-workload-default"
+        },
+        "dnsLabelPrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "VM name"
+            }
+        },
+        "vmSize": {
+            "type": "string",
+            "defaultValue": "Standard_A2",
+            "metadata": {
+                "description": "The size of the virtual machines"
+            }
+        },
+        "joinDomain": {
+            "type": "bool",
+            "metadata": {
+                "description": "Should this vm be added to the domain or not"
+            },
+            "defaultValue": true
+        },
+        "domainToJoin": {
+            "type": "string",
+            "metadata": {
+                "description": "The FQDN of the AD domain"
+            },
+            "defaultValue": "agri-marche.local"
+        },
+        "domainUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "Username of the account on the domain"
+            },
+            "defaultValue": "itadmin"
+        },
+        "domainPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password of the account on the domain"
+            }
+        },
+        "ouPath": {
+            "type": "string",
+            "metadata": {
+                "description": "Specifies an organizational unit (OU) for the domain account. Enter the full distinguished name of the OU in quotation marks. Example: 'OU=testOU; DC=domain; DC=Domain; DC=com"
+            },
+            "defaultValue": "OU=Servers,OU=Azure Canada,DC=agri-marche,DC=local"
+        },
+        "domainJoinOptions": {
+            "type": "int",
+            "defaultValue": 3,
+            "metadata": {
+                "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx"
+            }
+        },
+        "vmAdminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the administrator of the new VM and the domain. Exclusion list: 'admin','administrator"
+            },
+            "defaultValue": "azureadmin"
+        },
+        "vmAdminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "The password for the administrator account of the new VM and the domain"
+            }
+        },
+        "bootDiagStorageAccount": {
+            "type": "string",
+            "metadata": {
+                "description": "Storage Account URI to send boot diagnostics to"
+            },
+            "allowedValues": [ "https://saagribootdiag.blob.core.windows.net/" ],
+            "defaultValue": "https://saagribootdiag.blob.core.windows.net/"
+        }
+    },
+    "variables": {
+        "imagePublisher": "MicrosoftWindowsServer",
+        "imageOffer": "WindowsServer",
+        "windowsOSVersion": "2019-Datacenter",
+        "nicName": "[concat('nic-',parameters('dnsLabelPrefix'))]",
+        "vnetID": "[resourceId('rg-prod-01-canadacentral-mca', 'Microsoft.Network/virtualNetworks', parameters('existingVNETName'))]",
+        "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]"
+    },
+    "resources": [
+        {
+            "apiVersion": "2020-11-01",
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[variables('nicName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig",
+                        "properties": {
+                            "privateIPAllocationMethod": "Dynamic",
+                            "subnet": {
+                                "id": "[variables('subnetId')]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "apiVersion": "2020-12-01",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('dnsLabelPrefix')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('vmSize')]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('dnsLabelPrefix')]",
+                    "adminUsername": "[parameters('vmAdminUsername')]",
+                    "adminPassword": "[parameters('vmAdminPassword')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[variables('imagePublisher')]",
+                        "offer": "[variables('imageOffer')]",
+                        "sku": "[variables('windowsOSVersion')]",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "name": "[concat('disk-os-',parameters('dnsLabelPrefix'))]",
+                        "caching": "ReadWrite",
+                        "createOption": "FromImage"
+                    },
+                    "dataDisks": [
+                        {
+                            "name": "[concat('data-os-',parameters('dnsLabelPrefix'))]",
+                            "caching": "None",
+                            "createOption": "Empty",
+                            "diskSizeGB": 128,
+                            "lun": 0
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+                        }
+                    ]
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[parameters('bootDiagStorageAccount')]"
+                    }
+                }
+            }
+        },
+        {
+            "condition": "[parameters('joinDomain')]",
+            "apiVersion": "2015-06-15",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('dnsLabelPrefix'),'/joindomain')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('dnsLabelPrefix'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "JsonADDomainExtension",
+                "typeHandlerVersion": "1.3",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "Name": "[parameters('domainToJoin')]",
+                    "OUPath": "[parameters('ouPath')]",
+                    "User": "[concat(parameters('domainToJoin'), '\\', parameters('domainUsername'))]",
+                    "Restart": "true",
+                    "Options": "[parameters('domainJoinOptions')]"
+                },
+                "protectedSettings": {
+                    "Password": "[parameters('domainPassword')]"
+                }
+            }
+        }
+    ]
+}
