@@ -7,11 +7,11 @@ on:
 
 env:
   TEMPLATE_NAME: WindowsServerDatacenter2019
-  RESOURCE_GROUP: rg-arm-test
+  RESOURCE_GROUP: rg-prod-01-canadacentral-mca
 
 jobs:
 
-  build-and-deploy:
+  push-new-ts-version:
     runs-on: ubuntu-latest
     steps:
     - name: Get the version
@@ -23,4 +23,4 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - run: az ts create --name $TEMPLATE_NAME --version "${{ steps.get_version.outputs.VERSION }}" --resource-group $RESOURCE_GROUP --location "canadacentral" --template-file "./azuredeploy.json"    
+    - run: az ts create --name $TEMPLATE_NAME --version "${{ steps.get_version.outputs.VERSION }}" --resource-group $RESOURCE_GROUP --location "canadacentral" --template-file "./azuredeploy.json" --description "Custom template to create a new Windows Server VM and add it to the corporate domain"   
