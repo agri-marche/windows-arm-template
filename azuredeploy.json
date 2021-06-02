@@ -47,8 +47,7 @@
             "type": "string",
             "metadata": {
                 "description": "Username of the account on the domain"
-            },
-            "defaultValue": "itadmin"
+            }
         },
         "domainPassword": {
             "type": "securestring",
