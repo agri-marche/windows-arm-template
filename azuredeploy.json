@@ -140,7 +140,10 @@
                 "osProfile": {
                     "computerName": "[parameters('dnsLabelPrefix')]",
                     "adminUsername": "[parameters('vmAdminUsername')]",
-                    "adminPassword": "[parameters('vmAdminPassword')]"
+                    "adminPassword": "[parameters('vmAdminPassword')]",
+                    "windowsConfiguration": {
+                        "timeZone": "Eastern Standard Time"
+                    }
                 },
                 "storageProfile": {
                     "imageReference": {
@@ -202,6 +205,24 @@
                 },
                 "protectedSettings": {
                     "Password": "[parameters('domainPassword')]"
+                }
+            }
+        },
+        {
+            "apiVersion": "2018-06-01",
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('dnsLabelPrefix'),'/setTimezone')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[concat('Microsoft.Compute/virtualMachines/', parameters('dnsLabelPrefix'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.10",
+                "autoUpgradeMinorVersion": true,
+                "protectedSettings": {
+                    "commandToExecute": "tzutil /s \"Eastern Standard Time\""
                 }
             }
         }
