@@ -24,7 +24,7 @@
         },
         "vmSize": {
             "type": "string",
-            "defaultValue": "Standard_A2",
+            "defaultValue": "Standard_B2s",
             "metadata": {
                 "description": "The size of the virtual machines"
             }
