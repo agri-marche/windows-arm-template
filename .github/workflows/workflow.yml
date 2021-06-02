@@ -1,6 +1,9 @@
 name: UpdateAzureTemplateSpecs
 on: 
   workflow_dispatch:
+  release:
+    types: [published]
+
 
 env:
   TEMPLATE_NAME: WindowsServerDatacenter2019
@@ -11,10 +14,9 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-
+    - uses: actions/checkout@main
     - uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - run: |
-        az ts create --name $TEMPLATE_NAME --version "v0.0.1" --resource-group $RESOURCE_GROUP --location "canadacentral" --template-file "./azuredeploy.json"
+    - run: az ts create --name $TEMPLATE_NAME --version "v0.0.1" --resource-group $RESOURCE_GROUP --location "canadacentral" --template-file "./azuredeploy.json"
