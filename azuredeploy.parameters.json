@@ -1,0 +1,14 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "domainPassword": {
+            "reference": {
+                "keyVault": {
+                    "id": "/subscriptions/aea8f7ee-5c41-4f97-b7b0-181f8a2a5c3b/resourceGroups/rg-prod-01-canadacentral-mca/providers/Microsoft.KeyVault/vaults/kv-agri-default"
+                },
+                "secretName": "itadmin-domain-password"
+            }
+        }
+    }
+}
