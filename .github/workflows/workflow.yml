@@ -17,4 +17,4 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - run: |
-        az ts create --name $TEMPLATE_NAME --version "v0.0.1" --resource-group $RESOURCE_GROUP --location "canadacentral" --template-file "azuredeploy.json"
+        az ts create --name $TEMPLATE_NAME --version "v0.0.1" --resource-group $RESOURCE_GROUP --location "canadacentral" --template-file "./azuredeploy.json"
