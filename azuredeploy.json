@@ -5,14 +5,14 @@
         "existingVNETName": {
             "type": "string",
             "metadata": {
-                "description": "Existing VNET that contains the domain controller"
+                "description": "Existing VNET that have access to at least one Domain Controller"
             },
             "defaultValue": "vnet-prod-spoke-workload"
         },
         "existingSubnetName": {
             "type": "string",
             "metadata": {
-                "description": "Existing subnet that contains the domain controller"
+                "description": "Existing subnet that have access to at least one Domain Controller"
             },
             "defaultValue": "snet-prod-spoke-workload-default"
         },
@@ -20,7 +20,9 @@
             "type": "string",
             "metadata": {
                 "description": "VM name"
-            }
+            },
+            "maxLength": 13,
+            "defaultValue": "vm-name-01"
         },
         "vmSize": {
             "type": "string",
@@ -28,13 +30,6 @@
             "metadata": {
                 "description": "The size of the virtual machines"
             }
-        },
-        "joinDomain": {
-            "type": "bool",
-            "metadata": {
-                "description": "Should this vm be added to the domain or not"
-            },
-            "defaultValue": true
         },
         "domainToJoin": {
             "type": "string",
@@ -46,21 +41,15 @@
         "domainUsername": {
             "type": "string",
             "metadata": {
-                "description": "Username of the account on the domain"
-            }
+                "description": "Username of the account on the domain. "
+            },
+            "defaultValue": "username"
         },
         "domainPassword": {
             "type": "securestring",
             "metadata": {
                 "description": "Password of the account on the domain"
             }
-        },
-        "ouPath": {
-            "type": "string",
-            "metadata": {
-                "description": "Specifies an organizational unit (OU) for the domain account. Enter the full distinguished name of the OU in quotation marks. Example: 'OU=testOU; DC=domain; DC=Domain; DC=com"
-            },
-            "defaultValue": "OU=Servers,OU=Azure Canada,DC=agri-marche,DC=local"
         },
         "vmAdminUsername": {
             "type": "string",
@@ -75,53 +64,37 @@
                 "description": "The password for the administrator account of the new VM and the domain"
             }
         },
-        "bootDiagStorageAccount": {
+        "environment": {
             "type": "string",
             "metadata": {
-                "description": "Storage Account URI to send boot diagnostics to"
+                "description": "VM environment"
             },
-            "allowedValues": [ "https://saagribootdiag.blob.core.windows.net/" ],
-            "defaultValue": "https://saagribootdiag.blob.core.windows.net/"
+            "allowedValues": [ "prod", "dev", "qa" ],
+            "defaultValue": "prod"
         },
-        "networkSecurityGroupRules": {
-            "type": "Array",
-            "defaultValue": []
+        "importance": {
+            "type": "string",
+            "metadata": {
+                "description": "VM importance"
+            },
+            "allowedValues": [ "low", "medium", "high" ],
+            "defaultValue": "medium"
         },
-        "tags": {
-            "type": "object",
-            "defaultValue": {
-                "Environment": "prod",
-                "CostCenter": "IT",
-                "Importance": "medium",
-                "App": "AppName",
-                "PatchPolicy": "saturday",
-                "Source": "ARMTemplate"
+        "app": {
+            "type": "string",
+            "metadata": {
+                "description": "Application name"
             }
         },
-        "backupVaultName": {
-            "type": "String",
+        "patchPolicy": {
+            "type": "string",
             "metadata": {
-                "description": "Name of the backup vault to use"
+                "description": "Which day to patch the VM"
             },
-            "allowedValues": [ "rec-vault-01" ],
-            "defaultValue": "rec-vault-01"
-        },
-        "backupVaultRGName": {
-            "type": "String",
-            "metadata": {
-                "description": "Name of the resource group where the backup vault is located"
-            },
-            "allowedValues": [ "rg-prod-01-canadacentral-mca" ],
-            "defaultValue": "rg-prod-01-canadacentral-mca"
-        },
-        "backupPolicyName": {
-            "type": "String",
-            "metadata": {
-                "description": "Name of the backup policy"
-            },
-            "allowedValues": [ "DailyPolicy", "DefaultPolicy" ],
-            "defaultValue": "DailyPolicy"
+            "allowedValues": [ "saturday", "sunday" ],
+            "defaultValue": "saturday"
         }
+
     },
     "variables": {
         "imagePublisher": "MicrosoftWindowsServer",
@@ -133,7 +106,20 @@
         "backupItemName": "[concat('vm;iaasvmcontainerv2;', resourceGroup().name,';', parameters('dnsLabelPrefix'))]",
         "backupFabricName": "Azure",
         "nsgName": "[concat('nsg-',parameters('dnsLabelPrefix'))]",
-        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('nsgName'))]"
+        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('nsgName'))]",
+        "ouPath": "OU=Servers,OU=Azure Canada,DC=agri-marche,DC=local",
+        "bootDiagStorageAccount": "https://saagribootdiag.blob.core.windows.net/",
+        "backupVaultName": "rec-vault-01",
+        "backupVaultRGName": "rg-prod-01-canadacentral-mca",
+        "backupPolicyName": "DailyPolicy",
+        "tags": {
+            "Source": "ARMTemplate",
+            "Environment": "[parameters('environment')]",
+            "CostCenter": "IT",
+            "Importance": "[parameters('importance')]",
+            "App": "[parameters('app')]",
+            "PatchPolicy": "[parameters('patchPolicy')]"
+        }
     },
     "resources": [
         {
@@ -142,7 +128,7 @@
             "name": "[variables('nsgName')]",
             "location": "[resourceGroup().location]",
             "properties": {
-                "securityRules": "[parameters('networkSecurityGroupRules')]"
+                "securityRules": []
             }
         },
         {
@@ -150,7 +136,7 @@
             "type": "Microsoft.Network/networkInterfaces",
             "name": "[variables('nicName')]",
             "location": "[resourceGroup().location]",
-            "tags": "[parameters('tags')]",
+            "tags": "[variables('tags')]",
             "dependsOn": [
                 "[concat('Microsoft.Network/networkSecurityGroups/', variables('nsgName'))]"
             ],
@@ -176,7 +162,7 @@
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[parameters('dnsLabelPrefix')]",
             "location": "[resourceGroup().location]",
-            "tags": "[parameters('tags')]",
+            "tags": "[variables('tags')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
             ],
@@ -224,13 +210,12 @@
                 "diagnosticsProfile": {
                     "bootDiagnostics": {
                         "enabled": true,
-                        "storageUri": "[parameters('bootDiagStorageAccount')]"
+                        "storageUri": "[variables('bootDiagStorageAccount')]"
                     }
                 }
             }
         },
         {
-            "condition": "[parameters('joinDomain')]",
             "apiVersion": "2015-06-15",
             "type": "Microsoft.Compute/virtualMachines/extensions",
             "name": "[concat(parameters('dnsLabelPrefix'),'/joindomain')]",
@@ -245,7 +230,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "Name": "[parameters('domainToJoin')]",
-                    "OUPath": "[parameters('ouPath')]",
+                    "OUPath": "[variables('ouPath')]",
                     "User": "[concat(parameters('domainToJoin'), '\\', parameters('domainUsername'))]",
                     "Restart": "true",
                     "Options": 3
@@ -287,20 +272,20 @@
                     "contentVersion": "1.0.0.0",
                     "resources": [
                         {
-                            "name": "[concat(parameters('backupVaultName'), '/', variables('backupFabricName'), '/', variables('backupItemName'))]",
+                            "name": "[concat(variables('backupVaultName'), '/', variables('backupFabricName'), '/', variables('backupItemName'))]",
                             "apiVersion": "2017-07-01",
                             "type": "Microsoft.RecoveryServices/vaults/backupFabrics/backupProtectionIntent",
                             "properties": {
                                 "friendlyName": "[concat(parameters('dnsLabelPrefix'), 'BackupIntent')]",
                                 "protectionIntentItemType": "AzureResourceItem",
-                                "policyId": "[resourceId(parameters('backupVaultRGName'), 'Microsoft.RecoveryServices/vaults/backupPolicies', parameters('backupVaultName'), parameters('backupPolicyName'))]",
+                                "policyId": "[resourceId(variables('backupVaultRGName'), 'Microsoft.RecoveryServices/vaults/backupPolicies', variables('backupVaultName'), variables('backupPolicyName'))]",
                                 "sourceResourceId": "[resourceId(resourceGroup().name, 'Microsoft.Compute/virtualMachines', parameters('dnsLabelPrefix'))]"
                             }
                         }
                     ]
                 }
             },
-            "resourceGroup": "[parameters('backupVaultRGName')]"
+            "resourceGroup": "[variables('backupVaultRGName')]"
         }
     ]
 }
