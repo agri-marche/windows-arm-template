@@ -119,7 +119,8 @@
             "Importance": "[parameters('importance')]",
             "App": "[parameters('app')]",
             "PatchPolicy": "[parameters('patchPolicy')]"
-        }
+        },
+        "workspaceName": "la-workspace-agri-default"
     },
     "resources": [
         {
@@ -213,7 +214,30 @@
                         "storageUri": "[variables('bootDiagStorageAccount')]"
                     }
                 }
-            }
+            },
+            "resources": [
+                {
+                    "type": "extensions",
+                    "name": "Microsoft.EnterpriseCloud.Monitoring",
+                    "apiVersion": "2015-06-15",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachines/', parameters('dnsLabelPrefix'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+                        "type": "MicrosoftMonitoringAgent",
+                        "typeHandlerVersion": "1.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "workspaceId": "[reference(resourceId('rg-automation-gen', 'Microsoft.OperationalInsights/workspaces', variables('workspaceName')), '2015-03-20').customerId]"
+                        },
+                        "protectedSettings": {
+                            "workspaceKey": "[listKeys(resourceId('rg-automation-gen','Microsoft.OperationalInsights/workspaces', variables('workspaceName')), '2015-03-20').primarySharedKey]"
+                        }
+                    }
+                }
+            ]
         },
         {
             "apiVersion": "2015-06-15",
