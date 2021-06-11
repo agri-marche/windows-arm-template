@@ -193,7 +193,7 @@
                     },
                     "dataDisks": [
                         {
-                            "name": "[concat('data-os-',parameters('dnsLabelPrefix'))]",
+                            "name": "[concat('disk-data-',parameters('dnsLabelPrefix'))]",
                             "caching": "None",
                             "createOption": "Empty",
                             "diskSizeGB": 128,
