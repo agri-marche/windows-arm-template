@@ -22,7 +22,7 @@
                 "description": "VM name"
             },
             "maxLength": 13,
-            "defaultValue": "vm-name-01"
+            "defaultValue": "vm-name-0"
         },
         "vmSize": {
             "type": "string",
