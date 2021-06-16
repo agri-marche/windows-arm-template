@@ -310,6 +310,27 @@
                 }
             },
             "resourceGroup": "[variables('backupVaultRGName')]"
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(parameters('dnsLabelPrefix'),'/installEDR')]",
+            "apiVersion": "2018-06-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines/', parameters('dnsLabelPrefix'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomscriptExtension",
+                "typeHandlerVersion": "1.10",
+                "autoUpgradeMinorVersion": true,
+                "protectedSettings": {
+                    "fileUris": [
+                        "https://saagriautomation.blob.core.windows.net/edr/GoSecure_Windows_EDR_Sensor_Installer.exe"
+                    ],
+                    "commandToExecute": "GoSecure_Windows_EDR_Sensor_Installer.exe /S /HOST:579.mastermoldsolutions.net /PORT:443 /TENANT:Agri-Marche /SKIPCONFIGCHECK /SIMPLERESULT"
+                }
+            }
         }
     ]
 }
