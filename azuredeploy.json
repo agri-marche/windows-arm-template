@@ -7,14 +7,20 @@
             "metadata": {
                 "description": "Existing VNET that have access to at least one Domain Controller"
             },
-            "defaultValue": "vnet-prod-spoke-workload"
+            "defaultValue": "vnet-prod-spoke-workload",
+            "allowedValues": [
+                "vnet-prod-spoke-workload"
+            ]
         },
         "existingSubnetName": {
             "type": "string",
             "metadata": {
                 "description": "Existing subnet that have access to at least one Domain Controller"
             },
-            "defaultValue": "snet-prod-spoke-workload-default"
+            "defaultValue": "snet-prod-spoke-workload-default",
+            "allowedValues": [
+                "snet-prod-spoke-workload-default"
+            ]
         },
         "dnsLabelPrefix": {
             "type": "string",
@@ -36,7 +42,8 @@
             "metadata": {
                 "description": "The FQDN of the AD domain"
             },
-            "defaultValue": "agri-marche.local"
+            "defaultValue": "agri-marche.local",
+            "allowedValues": [ "agri-marche.local" ]
         },
         "domainUsername": {
             "type": "string",
