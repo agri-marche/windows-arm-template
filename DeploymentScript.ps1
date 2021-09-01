@@ -18,7 +18,7 @@ PS> DeploymentScript.ps1
 
 .LINK
 
-http://www.fabrikam.com/extension.html
+https://github.com/agri-marche/windows-arm-template
 
 #>
 
