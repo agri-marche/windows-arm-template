@@ -320,7 +320,7 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "name": "[concat(parameters('dnsLabelPrefix'),'/installEDR')]",
+            "name": "[concat(parameters('dnsLabelPrefix'),'/installDefaults')]",
             "apiVersion": "2018-06-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
@@ -335,7 +335,7 @@
                     "fileUris": [
                         "https://raw.githubusercontent.com/agri-marche/windows-arm-template/main/DeploymentScript.ps1"
                     ],
-                    "commandToExecute": "powershell.exe DeploymentScript.ps1"
+                    "commandToExecute": "powershell.exe -file DeploymentScript.ps1"
                 }
             }
         }
