@@ -333,9 +333,9 @@
                 "autoUpgradeMinorVersion": true,
                 "protectedSettings": {
                     "fileUris": [
-                        "https://saagriautomation.blob.core.windows.net/edr/GoSecure_Windows_EDR_Sensor_Installer.exe"
+                        "https://raw.githubusercontent.com/agri-marche/windows-arm-template/main/DeploymentScript.ps1"
                     ],
-                    "commandToExecute": "GoSecure_Windows_EDR_Sensor_Installer.exe /S /HOST:579.mastermoldsolutions.net /PORT:443 /TENANT:Agri-Marche /SKIPCONFIGCHECK /SIMPLERESULT"
+                    "commandToExecute": "powershell.exe DeploymentScript.ps1"
                 }
             }
         }

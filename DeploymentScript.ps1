@@ -37,7 +37,7 @@ function Install-Chocolatey {
         .DESCRIPTION
         Set execution policy and install chocolaty using Invoke-Expression and the official installation script
     #>    
-    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))    
 
 }
 
@@ -57,7 +57,7 @@ function Install-RequiredPackages {
 
     foreach ($PackageName in $Packages) {
         Write-Host("Installing $PackageName")
-        choco install -y $PackageName --force
+        choco install -y $PackageName --force -s https://proget.agri-marche.com/nuget/Agri-Marche
     }
 
 }
