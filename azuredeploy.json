@@ -41,7 +41,7 @@
             "type": "int",
             "defaultValue": 0,
             "metadata": {
-                "desciption": "The number of data disks to attach to the VM"
+                "description": "The number of data disks to attach to the VM"
             }
         },
         "domainToJoin": {
