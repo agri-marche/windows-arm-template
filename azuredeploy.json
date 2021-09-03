@@ -37,6 +37,13 @@
                 "description": "The size of the virtual machines"
             }
         },
+        "numberOfDataDisks": {
+            "type": "int",
+            "defaultValue": 0,
+            "metadata": {
+                "desciption": "The number of data disks to attach to the VM"
+            }
+        },
         "domainToJoin": {
             "type": "string",
             "metadata": {
@@ -200,15 +207,19 @@
                         "caching": "ReadWrite",
                         "createOption": "FromImage"
                     },
-                    "dataDisks": [
+                    "copy": [
                         {
-                            "name": "[concat('disk-data-',parameters('dnsLabelPrefix'))]",
-                            "caching": "None",
-                            "createOption": "Empty",
-                            "diskSizeGB": 128,
-                            "lun": 0
+                            "name": "dataDisks",
+                            "count": "[parameters('numberOfDataDisks')]",
+                            "input": {
+                                "diskSizeGB": 128,
+                                "createOption": "Empty",
+                                "caching": "None",
+                                "lun": "[copyIndex('dataDisks')]"
+                            }
                         }
                     ]
+
                 },
                 "networkProfile": {
                     "networkInterfaces": [
