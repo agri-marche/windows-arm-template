@@ -9,7 +9,8 @@
             },
             "defaultValue": "vnet-prod-spoke-workload",
             "allowedValues": [
-                "vnet-prod-spoke-workload"
+                "vnet-prod-spoke-workload",
+                "vnet-prod-dmz"
             ]
         },
         "existingSubnetName": {
@@ -19,7 +20,8 @@
             },
             "defaultValue": "snet-prod-spoke-workload-default",
             "allowedValues": [
-                "snet-prod-spoke-workload-default"
+                "snet-prod-spoke-workload-default",
+                "snet-prod-dmz-default"
             ]
         },
         "dnsLabelPrefix": {
