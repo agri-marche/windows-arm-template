@@ -5,7 +5,7 @@ on:
 
 
 env:
-  TEMPLATE_NAME: WindowsServerDatacenter2019
+  TEMPLATE_NAME: WindowsServerDatacenter
   RESOURCE_GROUP: rg-prod-01-canadacentral-mca
 
 jobs:
