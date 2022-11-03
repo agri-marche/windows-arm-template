@@ -32,6 +32,18 @@
             "maxLength": 13,
             "defaultValue": "vm-name-0"
         },
+        "windowsVersion": {
+            "type": "string",
+            "defaultValue": "2022-datacenter",
+            "allowedValues": [
+                "2022-datacenter",
+                "2019-Datacenter",
+                "2016-Datacenter"
+            ],
+            "metadata": {
+                "description": "The version of Windows OS to deploy"
+            }
+        },
         "vmSize": {
             "type": "string",
             "defaultValue": "Standard_B2s",
@@ -115,7 +127,7 @@
     "variables": {
         "imagePublisher": "MicrosoftWindowsServer",
         "imageOffer": "WindowsServer",
-        "windowsOSVersion": "2019-Datacenter",
+        "windowsOSVersion": "[parameters('windowsVersion')]",
         "nicName": "[concat('nic-',parameters('dnsLabelPrefix'))]",
         "vnetID": "[resourceId('rg-prod-01-canadacentral-mca', 'Microsoft.Network/virtualNetworks', parameters('existingVNETName'))]",
         "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
