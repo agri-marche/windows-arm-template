@@ -2,6 +2,17 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "location": {
+            "type": "string",
+            "metadata": {
+                "description": "Location for all resources"
+            },
+            "defaultValue": "Canada Central",
+            "allowedValues": [
+                "Canada Central",
+                "Canada East"
+            ]
+        },
         "existingVNETName": {
             "type": "string",
             "metadata": {
