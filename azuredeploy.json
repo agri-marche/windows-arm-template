@@ -139,7 +139,7 @@
         "bootDiagStorageAccount": "https://saagribootdiag.blob.core.windows.net/",
         "backupVaultName": "rec-vault-02-lrs",
         "backupVaultRGName": "rg-prod-01-canadacentral-mca",
-        "backupPolicyName": "DailyPolicy",
+        "backupPolicyName": "DailyBackupLRS7pm",
         "tags": {
             "Source": "ARMTemplate",
             "Environment": "[parameters('environment')]",
