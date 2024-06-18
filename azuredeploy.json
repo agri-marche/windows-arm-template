@@ -138,7 +138,7 @@
         "ouPath": "OU=Servers,OU=Azure Canada,DC=agri-marche,DC=local",
         "bootDiagStorageAccount": "https://saagribootdiag.blob.core.windows.net/",
         "backupVaultName": "rec-vault-03-lrs",
-        "backupVaultRGName": "rg-prod-01-canadacentral-mca",
+        "backupVaultRGName": "AzureBackupRG_canadacentral_1",
         "backupPolicyName": "DailyBackupLRS7pm",
         "tags": {
             "Source": "ARMTemplate",
