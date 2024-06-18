@@ -137,7 +137,7 @@
         "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('nsgName'))]",
         "ouPath": "OU=Servers,OU=Azure Canada,DC=agri-marche,DC=local",
         "bootDiagStorageAccount": "https://saagribootdiag.blob.core.windows.net/",
-        "backupVaultName": "rec-vault-02-lrs",
+        "backupVaultName": "rec-vault-03-lrs",
         "backupVaultRGName": "rg-prod-01-canadacentral-mca",
         "backupPolicyName": "DailyBackupLRS7pm",
         "tags": {
